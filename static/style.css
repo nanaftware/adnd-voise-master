@@ -1,63 +1,116 @@
+
+/* static/style.css */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #1e1a1a;
-    color: #f0e6d0;
+    font-family: 'Segoe UI', 'Roboto', system-ui, sans-serif;
+    background: #1a1a2e;
     margin: 0;
     padding: 20px;
+    color: #eee;
 }
 .container {
-    max-width: 800px;
-    margin: auto;
-    background: #2c2820;
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    max-width: 900px;
+    margin: 0 auto;
+    background: #16213e;
+    border-radius: 28px;
+    padding: 1.5rem;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+header {
+    text-align: center;
+    border-bottom: 1px solid #0f3460;
+    margin-bottom: 1rem;
 }
 h1 {
-    text-align: center;
-    font-size: 1.8em;
-    margin-top: 0;
+    margin: 0;
+    font-size: 2rem;
+}
+.subtitle {
+    color: #aaa;
+    margin-top: 0.2rem;
+    font-size: 0.9rem;
 }
 .chat-box {
-    background: #1f1c16;
-    border-radius: 12px;
-    padding: 15px;
+    background: #0f3460;
+    border-radius: 20px;
+    padding: 1rem;
     height: 400px;
     overflow-y: auto;
-    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 .message {
-    margin-bottom: 12px;
-    padding: 8px 12px;
-    border-radius: 12px;
+    padding: 10px 14px;
+    border-radius: 20px;
+    max-width: 85%;
+    line-height: 1.4;
+    word-wrap: break-word;
 }
 .message.player {
-    background: #3a3a5a;
-    text-align: right;
+    background: #2c3e66;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
 }
 .message.gm {
-    background: #2a4a3a;
-    text-align: left;
+    background: #2d6a4f;
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+}
+.message.system {
+    background: #6c757d;
+    font-style: italic;
+    font-size: 0.9rem;
+    align-self: center;
+}
+.input-area {
+    margin-top: 1.2rem;
 }
 textarea {
     width: 100%;
-    padding: 10px;
-    border-radius: 8px;
+    padding: 12px;
+    border-radius: 24px;
     border: none;
-    background: #3e3a30;
+    background: #0f3460;
     color: white;
-    font-size: 1em;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+}
+textarea:focus {
+    outline: 2px solid #e94560;
+}
+.action-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
 }
 button {
-    margin-top: 10px;
-    padding: 10px 20px;
-    background: #7a5a3a;
+    padding: 10px 18px;
     border: none;
-    border-radius: 8px;
-    color: white;
+    border-radius: 40px;
     font-weight: bold;
     cursor: pointer;
+    transition: 0.2s;
 }
-button:hover {
-    background: #9a7a5a;
+.btn-primary {
+    background: #e94560;
+    color: white;
+    flex: 2;
+}
+.btn-primary:hover {
+    background: #ff6b8b;
+}
+.btn-secondary {
+    background: #2b2d42;
+    color: #ddd;
+    flex: 1;
+}
+.btn-secondary:hover {
+    background: #3a3f5e;
+}
+.loading {
+    margin-top: 12px;
+    text-align: center;
+    color: #ffd966;
+    font-weight: bold;
 }
