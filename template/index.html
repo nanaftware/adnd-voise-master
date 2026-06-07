@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>AD&D - Máster Virtual</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🎲 Dungeon Master Virtual 🎙️</h1>
+        <div id="chat" class="chat-box">
+            <div class="message gm">Bienvenido aventurero. ¿Cuál es tu primera acción?</div>
+        </div>
+        <textarea id="actionInput" placeholder="Describe lo que hace tu personaje..."></textarea>
+        <button id="sendBtn">Enviar acción</button>
+        <audio id="audioPlayer" controls autoplay style="display:none"></audio>
+    </div>
+    <script>
+        const chatDiv = document.getElementById('chat');
+        const actionInput = document.getElementById('actionInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const audioPlayer = document.getElementById('audioPlayer');
+
+        sendBtn.addEventListener('click', async () => {
+            const action = actionInput.value.trim();
+            if (!action) return;
+
+            // Mostrar acción del jugador
+            addMessage(action, 'player');
+            actionInput.value = '';
+
+            // Enviar al backend
+            const response = await fetch('/api/action', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({action: action})
+            });
+            const data = await response.json();
+
+            // Mostrar respuesta del GM
+            addMessage(data.text, 'gm');
+
+            // Reproducir audio
+            if (data.audio_base64) {
+                audioPlayer.src = 'data:audio/wav;base64,' + data.audio_base64;
+                audioPlayer.style.display = 'block';
+                audioPlayer.play();
+            }
+        });
+
+        function addMessage(text, sender) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${sender}`;
+            msgDiv.innerText = text;
+            chatDiv.appendChild(msgDiv);
+            chatDiv.scrollTop = chatDiv.scrollHeight;
+        }
+    </script>
+</body>
+</html>
