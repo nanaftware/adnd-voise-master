@@ -110,6 +110,7 @@ def call_groq(messages):
 # ================= TEXTO A VOZ (POCKET TTS) =================
 def generate_audio(text):
     """Genera un archivo WAV en base64 a partir del texto usando PocketTTS."""
+    '''
     try:
         from pocket_tts import PocketTTS
         tts = PocketTTS(language="spanish")
@@ -118,7 +119,9 @@ def generate_audio(text):
     except Exception as e:
         print(f"❌ Error generando audio con PocketTTS: {e}")
         return None   # El frontend no mostrará audio, pero el texto sí
-
+        '''
+def generate_audio(text):
+    return None  # TTS deshabilitado temporalmente
 # ================= INICIO =================
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
