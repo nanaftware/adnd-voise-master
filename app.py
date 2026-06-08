@@ -54,7 +54,8 @@ def handle_action():
     })
 
 # ================= LLM (GROQ) =================
-def call_groq(messages):
+'''
+   def call_groq(messages):
     """Envía el historial a Groq y devuelve la respuesta del Dungeon Master."""
     headers = {
         "Authorization": f"Bearer {GROQ_API_KEY}",
@@ -79,7 +80,33 @@ def call_groq(messages):
     except (KeyError, IndexError) as e:
         print(f"❌ Error en la respuesta de Groq: {e}")
         return "El Dungeon Master respondió de forma inesperada. Intenta otra acción."
-
+        '''
+# =================================================
+def call_groq(messages):
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": MODEL_NAME,
+        "messages": messages,
+        "temperature": 0.7,
+        "max_tokens": 500,
+        "top_p": 0.9,
+        "stream": False
+    }
+    try:
+        response = requests.post(GROQ_URL, json=payload, headers=headers, timeout=30)
+        print(f"STATUS: {response.status_code}")
+        print(f"BODY: {response.text}")
+        response.raise_for_status()
+        result = response.json()
+        return result["choices"][0]["message"]["content"]
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Error Groq: {e}")
+        print(f"❌ Response: {response.text if 'response' in dir() else 'sin respuesta'}")
+        return f"Error: {str(e)}"
+        
 # ================= TEXTO A VOZ (POCKET TTS) =================
 def generate_audio(text):
     """Genera un archivo WAV en base64 a partir del texto usando PocketTTS."""
