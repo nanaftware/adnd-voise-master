@@ -13,7 +13,7 @@ if not GROQ_API_KEY:
     raise ValueError("❌ Falta la variable de entorno GROQ_API_KEY")
 
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
-MODEL_NAME = "llama3-8b-8192"   # Puedes cambiar a "mixtral-8x7b-32768" o "gemma2-9b-it"
+MODEL_NAME = "llama-3.1-8b-instant"   # Puedes cambiar a "mixtral-8x7b-32768" o "gemma2-9b-it"
 
 # Cargar el prompt del sistema para el Dungeon Master
 with open("prompts/system_prompt.txt", "r", encoding="utf-8") as f:
