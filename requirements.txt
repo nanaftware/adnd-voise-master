@@ -3,4 +3,5 @@ flask-socketio>=5.3.6
 requests>=2.31.0
 gtts>=2.5.1
 gunicorn>=21.2.0
-eventlet>=0.35.1
+gevent>=23.9.0
+gevent-websocket>=0.10.1
