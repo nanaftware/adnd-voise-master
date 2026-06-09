@@ -12,7 +12,7 @@ if not GROQ_API_KEY:
     raise ValueError("❌ Falta la variable de entorno GROQ_API_KEY")
 
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
-MODEL_NAME = "llama3-8b-8192"
+MODEL_NAME = "llama-3.1-8b-instant"
 
 # Cargar el prompt del sistema
 with open("prompts/system_prompt.txt", "r", encoding="utf-8") as f:
