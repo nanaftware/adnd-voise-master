@@ -165,6 +165,87 @@ def generate_audio(text):
         print(f"❌ Error generando audio: {e}")
         return None
 
+from game_state import save_game, load_game, list_saved_games, delete_save
+
+# Variable global para el nombre del jugador (podrías obtenerlo de una sesión)
+current_player_name = "aventurero"  # Temporal, idealmente vendría del frontend
+
+@app.route("/api/save", methods=["POST"])
+def save_current_game():
+    """Endpoint para guardar la partida actual."""
+    global conversation_history, current_player_name
+    
+    data = request.json
+    player_name = data.get("player_name", current_player_name)
+    campaign_name = data.get("campaign_name", "default")
+    
+    # Guardar usando la función auxiliar
+    filename = save_game(conversation_history, player_name, campaign_name)
+    
+    if filename:
+        return jsonify({
+            "status": "ok",
+            "message": f"Partida guardada exitosamente",
+            "filename": filename
+        })
+    else:
+        return jsonify({
+            "status": "error",
+            "message": "Error al guardar la partida"
+        }), 500
+
+@app.route("/api/load", methods=["POST"])
+def load_saved_game():
+    """Endpoint para cargar una partida guardada."""
+    global conversation_history
+    
+    data = request.json
+    filename = data.get("filename")
+    
+    if not filename:
+        return jsonify({"error": "No se especificó archivo"}), 400
+    
+    # Cargar la partida
+    save_data = load_game(filename)
+    
+    if save_data:
+        conversation_history = save_data["conversation_history"]
+        return jsonify({
+            "status": "ok",
+            "message": f"Partida cargada: {save_data['player_name']} - {save_data['campaign_name']}",
+            "history": conversation_history[-5:]  # Enviar últimos mensajes como preview
+        })
+    else:
+        return jsonify({
+            "status": "error",
+            "message": "No se pudo cargar la partida"
+        }), 500
+
+@app.route("/api/list_saves", methods=["GET"])
+def list_saves():
+    """Endpoint para listar todas las partidas guardadas."""
+    player_name = request.args.get("player_name", current_player_name)
+    saves = list_saved_games(player_name)
+    
+    return jsonify({
+        "status": "ok",
+        "saves": saves
+    })
+
+@app.route("/api/delete_save", methods=["POST"])
+def delete_save_game():
+    """Endpoint para eliminar una partida guardada."""
+    data = request.json
+    filename = data.get("filename")
+    
+    if not filename:
+        return jsonify({"error": "No se especificó archivo"}), 400
+    
+    if delete_save(filename):
+        return jsonify({"status": "ok", "message": "Partida eliminada"})
+    else:
+        return jsonify({"status": "error", "message": "Error al eliminar"}), 500
+        
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
