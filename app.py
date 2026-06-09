@@ -5,7 +5,7 @@ from flask_socketio import SocketIO, emit, join_room
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__, template_folder="template")
 app.secret_key = os.environ.get("SECRET_KEY", "cronicas-del-abismo-2024")
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="gevent")
 
 # ── Configuración ──────────────────────────────────────────────
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
