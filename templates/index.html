@@ -3,84 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>🎲 AD&D · Máster Virtual con Voz</title>
+    <title>AD&D · Dungeon Master Virtual</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🧙 Dungeon Master Virtual</h1>
-            <p class="subtitle">AD&D 2ª Edición · Narración con voz</p>
+            <h1>Dungeon Master Virtual</h1>
+            <p class="subtitle">AD&amp;D 2ª Edición &nbsp;·&nbsp; Narración con voz</p>
         </header>
 
         <div id="chat" class="chat-box">
             <div class="message gm">
-                🎭 Bienvenido, aventurero. Soy tu Dungeon Master. Describe lo que hace tu personaje y te guiaré en esta partida.
+                Bienvenido, aventurero. Soy tu Dungeon Master. Describe lo que hace tu personaje y te guiaré en esta partida.
             </div>
         </div>
 
         <div class="input-area">
             <textarea id="actionInput" rows="2" placeholder="Ej: Busco señales en el suelo, empujo la puerta, ataco al goblin con mi espada..."></textarea>
             <div class="action-buttons">
-                <button id="sendBtn" class="btn-primary">📤 Enviar acción</button>
-                <button id="clearChatBtn" class="btn-secondary">🗑️ Limpiar historial</button>
+                <button id="sendBtn" class="btn-primary">⚔ Enviar acción</button>
+                <button id="clearChatBtn" class="btn-secondary">✦ Nueva partida</button>
             </div>
             <div id="loadingIndicator" class="loading" style="display: none;">
-                ⏳ El Dungeon Master está narrando...
+                El Dungeon Master narra su respuesta...
             </div>
         </div>
 
-        <!-- Reproductor de audio (oculto hasta que haya sonido) -->
-        <audio id="audioPlayer" controls style="display: none; width: 100%; margin-top: 1rem;"></audio>
+        <audio id="audioPlayer" controls style="display: none; width: calc(100% - 3rem); margin: 0 1.5rem 1.5rem;"></audio>
     </div>
 
     <script>
-        // Elementos del DOM
-        const chatDiv = document.getElementById('chat');
-        const actionInput = document.getElementById('actionInput');
-        const sendBtn = document.getElementById('sendBtn');
+        const chatDiv      = document.getElementById('chat');
+        const actionInput  = document.getElementById('actionInput');
+        const sendBtn      = document.getElementById('sendBtn');
         const clearChatBtn = document.getElementById('clearChatBtn');
-        const loadingDiv = document.getElementById('loadingIndicator');
-        const audioPlayer = document.getElementById('audioPlayer');
+        const loadingDiv   = document.getElementById('loadingIndicator');
+        const audioPlayer  = document.getElementById('audioPlayer');
 
-        // Función para añadir un mensaje al chat
         function addMessage(text, sender) {
             const msgDiv = document.createElement('div');
             msgDiv.className = `message ${sender}`;
-            // Escapar HTML básico para evitar inyecciones, pero conservar saltos de línea
-            const safeText = text.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            }).replace(/\n/g, '<br>');
+            const safeText = text.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]))
+                                 .replace(/\n/g, '<br>');
             msgDiv.innerHTML = safeText;
             chatDiv.appendChild(msgDiv);
             chatDiv.scrollTop = chatDiv.scrollHeight;
         }
 
-        // Limpiar solo el historial visual (no toca el backend, el backend mantiene su propio historial)
-        // Para una demo simple, borramos el DOM y luego recargamos la página o reseteamos.
-        // Pero lo correcto sería avisar al backend para resetear conversation_history.
-        // Por simplicidad: recargar la página.
         clearChatBtn.addEventListener('click', () => {
-            if (confirm('¿Borrar todo el historial de la conversación? Se perderá el contexto actual.')) {
-                // Podríamos hacer una llamada a /api/reset pero no lo hemos implementado.
-                // Alternativa: recargar la página, el backend tiene el historial en RAM y se perderá.
+            if (confirm('¿Iniciar una nueva partida? Se perderá el contexto actual.')) {
                 location.reload();
             }
         });
 
-        // Enviar acción al backend
         async function sendAction() {
             const action = actionInput.value.trim();
             if (!action) {
-                addMessage("(Escribe algo, por favor)", "system");
+                addMessage("Escribe una acción primero.", "system");
                 return;
             }
 
-            // Mostrar la acción del jugador
-            addMessage(`🎲 ${action}`, "player");
+            addMessage(action, "player");
             actionInput.value = '';
             actionInput.disabled = true;
             sendBtn.disabled = true;
@@ -90,33 +74,24 @@
                 const response = await fetch('/api/action', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: action })
+                    body: JSON.stringify({ action })
                 });
 
-                if (!response.ok) {
-                    throw new Error(`Error HTTP: ${response.status}`);
-                }
-
+                if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
                 const data = await response.json();
-                if (data.error) {
-                    throw new Error(data.error);
-                }
+                if (data.error) throw new Error(data.error);
 
-                // Mostrar respuesta del GM
-                addMessage(`🎭 ${data.text}`, "gm");
+                addMessage(data.text, "gm");
 
-                // Manejar audio si viene
                 if (data.audio_base64) {
                     audioPlayer.src = 'data:audio/wav;base64,' + data.audio_base64;
                     audioPlayer.style.display = 'block';
-                    audioPlayer.play().catch(e => console.warn("Autoplay bloqueado:", e));
+                    audioPlayer.play().catch(() => {});
                 } else {
-                    // Si no hay audio, ocultar el reproductor
                     audioPlayer.style.display = 'none';
                 }
             } catch (error) {
-                console.error("Error:", error);
-                addMessage(`⚠️ El Dungeon Master no puede responder ahora: ${error.message}. Intenta de nuevo.`, "gm");
+                addMessage(`El Dungeon Master no puede responder ahora: ${error.message}. Intenta de nuevo.`, "system");
             } finally {
                 loadingDiv.style.display = 'none';
                 actionInput.disabled = false;
@@ -125,16 +100,11 @@
             }
         }
 
-        // Eventos
         sendBtn.addEventListener('click', sendAction);
-        actionInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendAction();
-            }
+        actionInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAction(); }
         });
 
-        // Enfoque inicial
         actionInput.focus();
     </script>
 </body>
