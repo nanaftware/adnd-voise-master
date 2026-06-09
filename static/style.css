@@ -592,3 +592,181 @@ button { font-family: 'Cinzel', serif; cursor: pointer; border-radius: 2px; tran
   .loading, #waiting-msg { animation: none; }
   .message { animation: none; }
 }
+
+/* ═══════════════════════════════════════
+   CONFIGURACIÓN DE SALA
+═══════════════════════════════════════ */
+.config-hint {
+  font-size: 0.85rem;
+  color: var(--parchment-dim);
+  font-style: italic;
+  text-align: center;
+  margin-bottom: 1.2rem;
+  line-height: 1.5;
+}
+
+.config-summary {
+  background: rgba(42,30,18,0.5);
+  border: 1px solid var(--gold-dark);
+  padding: 10px 14px;
+  margin: 1rem 0;
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  color: var(--gold-mid);
+  letter-spacing: 0.05em;
+}
+
+.btn-secondary-action {
+  padding: 11px 16px;
+  background: transparent;
+  border: 1px solid var(--border-rune);
+  color: var(--parchment-dim);
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.2s;
+}
+.btn-secondary-action:hover {
+  border-color: var(--gold-dark);
+  color: var(--text-bright);
+  background: rgba(42,30,18,0.4);
+}
+
+/* ═══════════════════════════════════════
+   EDICIÓN DE NPCs
+═══════════════════════════════════════ */
+.npc-edit-card {
+  background: rgba(15,10,5,0.6);
+  border: 1px solid var(--border-rune);
+  padding: 14px;
+  margin-bottom: 12px;
+  border-radius: 2px;
+}
+
+.npc-edit-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.npc-avatar-display {
+  font-size: 1.6rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.npc-av-sel {
+  width: 64px !important;
+  padding: 6px 4px !important;
+  font-size: 1rem !important;
+  flex-shrink: 0;
+}
+
+.npc-name-inp {
+  flex: 1;
+  padding: 8px 12px;
+  background: rgba(15,10,5,0.8);
+  border: 1px solid var(--border-rune);
+  border-bottom: 2px solid var(--gold-dark);
+  color: var(--text-bright);
+  font-family: 'IM Fell English', serif;
+  font-size: 0.95rem;
+  border-radius: 2px;
+}
+.npc-name-inp:focus { outline: none; border-color: var(--gold-mid); }
+
+.npc-cls-sel, .npc-ali-sel {
+  flex: 1;
+}
+
+.npc-pers-inp {
+  width: 100%;
+  padding: 8px 12px;
+  background: rgba(15,10,5,0.6);
+  border: 1px solid var(--border-rune);
+  border-bottom: 1px solid var(--border-rune);
+  color: var(--text-mid);
+  font-family: 'IM Fell English', serif;
+  font-size: 0.85rem;
+  font-style: italic;
+  border-radius: 2px;
+}
+.npc-pers-inp:focus { outline: none; border-color: var(--gold-dark); }
+.npc-pers-inp::placeholder { color: var(--text-dim); }
+
+/* ═══════════════════════════════════════
+   BADGES
+═══════════════════════════════════════ */
+.npc-badge {
+  display: inline-block;
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  font-style: normal;
+  color: var(--bg-void);
+  background: var(--gold-dark);
+  padding: 1px 5px;
+  border-radius: 2px;
+  vertical-align: middle;
+  letter-spacing: 0.05em;
+  margin-left: 4px;
+}
+
+.pass-badge {
+  display: inline-block;
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  font-style: normal;
+  color: var(--text-dim);
+  background: var(--grey-stone);
+  padding: 1px 5px;
+  border-radius: 2px;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+
+/* ═══════════════════════════════════════
+   MENSAJES NPC
+═══════════════════════════════════════ */
+.message.npc { align-self: flex-start; }
+
+.message.npc .msg-text {
+  background: linear-gradient(135deg, rgba(30,22,42,0.9), rgba(22,14,32,0.9));
+  border: 1px solid #4A3565;
+  border-left: 3px solid #7A5590;
+  color: var(--parchment);
+  font-style: normal;
+}
+
+.message.npc-pass .msg-text {
+  background: rgba(15,10,5,0.5);
+  border: 1px solid var(--border-rune);
+  color: var(--text-dim);
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+/* ═══════════════════════════════════════
+   TURNO NPC EN BANNER
+═══════════════════════════════════════ */
+.turn-banner.npc-turn {
+  background: rgba(42,22,62,0.3);
+  border-color: #4A3565;
+  color: #9A78B8;
+  animation: flicker 3s ease-in-out infinite;
+}
+
+/* waiting-player en pantalla join */
+.waiting-player {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 3px 6px 3px 0;
+  font-size: 0.88rem;
+}
+CSSEOF
+echo "OK"
