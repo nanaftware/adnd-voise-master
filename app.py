@@ -8,6 +8,24 @@ app.secret_key = os.environ.get("SECRET_KEY", "cronicas-del-abismo-2024")
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 
 # ── Configuración ──────────────────────────────────────────────
+OPENROUTER_KEY = os.environ.get("OPENROUTER_API_KEY")
+OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
+MODEL_NPC = "meta-llama/llama-3.1-8b-instruct:free"
+
+def call_npc_model(messages, max_tokens=120):
+    headers = {
+        "Authorization": f"Bearer {OPENROUTER_KEY}",
+        "Content-Type": "application/json"
+    }
+    payload = {"model": MODEL_NPC, "messages": messages,
+               "temperature": 0.85, "max_tokens": max_tokens}
+    try:
+        r = requests.post(OPENROUTER_URL, json=payload, headers=headers, timeout=30)
+        r.raise_for_status()
+        return r.json()["choices"][0]["message"]["content"].strip()
+    except Exception as e:
+        print(f"❌ OpenRouter error: {e}")
+        return None
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 if not GROQ_API_KEY:
     raise ValueError("Falta GROQ_API_KEY")
