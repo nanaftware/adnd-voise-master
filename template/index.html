@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AD&D · Crónicas del Abismo</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     PANTALLA 1: FICHA DE PERSONAJE
+══════════════════════════════════════ -->
+<div id="screen-join" class="screen active">
+  <div class="join-container">
+    <div class="join-header">
+      <div class="rune-line">⋆ ✦ ⋆</div>
+      <h1>Crónicas del Abismo</h1>
+      <p class="join-subtitle">AD&D · Dungeon Master Virtual · Multijugador</p>
+      <div class="rune-line">⋆ ✦ ⋆</div>
+    </div>
+
+    <div class="join-card">
+      <h2 class="section-title">Crea tu Personaje</h2>
+
+      <!-- Nombre -->
+      <div class="field-group">
+        <label>Nombre del aventurero</label>
+        <input type="text" id="inp-name" maxlength="20"
+               placeholder="Ej: Varek el Sombrío...">
+      </div>
+
+      <!-- Avatar -->
+      <div class="field-group">
+        <label>Elige tu símbolo</label>
+        <div class="avatar-grid" id="avatar-grid">
+          <button class="avatar-btn selected" data-av="🧙">🧙</button>
+          <button class="avatar-btn" data-av="⚔️">⚔️</button>
+          <button class="avatar-btn" data-av="🏹">🏹</button>
+          <button class="avatar-btn" data-av="🛡️">🛡️</button>
+          <button class="avatar-btn" data-av="🗡️">🗡️</button>
+          <button class="avatar-btn" data-av="🔮">🔮</button>
+          <button class="avatar-btn" data-av="⚗️">⚗️</button>
+          <button class="avatar-btn" data-av="🌿">🌿</button>
+        </div>
+      </div>
+
+      <!-- Clase y Alineamiento en fila -->
+      <div class="field-row">
+        <div class="field-group">
+          <label>Clase</label>
+          <select id="inp-class">
+            <option>Guerrero</option>
+            <option>Mago</option>
+            <option>Clérigo</option>
+            <option>Ladrón</option>
+            <option>Paladín</option>
+            <option>Druida</option>
+            <option>Bardo</option>
+            <option>Explorador</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Alineamiento</label>
+          <select id="inp-alignment">
+            <option>Legal Bueno</option>
+            <option>Neutral Bueno</option>
+            <option>Caótico Bueno</option>
+            <option>Legal Neutral</option>
+            <option selected>Neutral</option>
+            <option>Caótico Neutral</option>
+            <option>Legal Malvado</option>
+            <option>Neutral Malvado</option>
+            <option>Caótico Malvado</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Vista previa de la ficha -->
+      <div class="char-preview" id="char-preview">
+        <span id="prev-avatar">🧙</span>
+        <div class="prev-info">
+          <span id="prev-name">Tu Nombre</span>
+          <span id="prev-sub">Mago · Neutral</span>
+        </div>
+      </div>
+
+      <div id="join-error" class="error-msg" style="display:none"></div>
+
+      <button id="btn-join" class="btn-enter">
+        ⚔ Ingresar a la Partida
+      </button>
+
+      <!-- Jugadores ya conectados -->
+      <div id="players-waiting" class="players-waiting" style="display:none">
+        <p class="waiting-title">Aventureros en la sala:</p>
+        <div id="waiting-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     PANTALLA 2: SALA DE JUEGO
+══════════════════════════════════════ -->
+<div id="screen-game" class="screen">
+  <div class="game-layout">
+
+    <!-- ── Columna izquierda: jugadores ── -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">Aventureros</span>
+      </div>
+      <div id="players-list"></div>
+
+      <div class="sidebar-footer">
+        <button id="btn-leave" class="btn-leave">Abandonar partida</button>
+      </div>
+    </aside>
+
+    <!-- ── Columna central: chat ── -->
+    <main class="game-main">
+      <header class="game-header">
+        <h1>Crónicas del Abismo</h1>
+        <p class="game-subtitle">AD&D · Dungeon Master Virtual</p>
+      </header>
+
+      <!-- Banner de turno -->
+      <div id="turn-banner" class="turn-banner">
+        <span id="turn-text">Esperando jugadores...</span>
+      </div>
+
+      <!-- Chat -->
+      <div id="chat" class="chat-box">
+        <div class="message gm">
+          Bienvenidos, aventureros. Soy vuestro Dungeon Master. La partida comenzará cuando estéis listos.
+        </div>
+      </div>
+
+      <!-- Audio del GM -->
+      <audio id="audioPlayer" style="display:none; width:100%; margin-top:8px;"></audio>
+
+      <!-- Área de input (solo activa en tu turno) -->
+      <div class="input-area">
+        <div id="waiting-overlay" class="waiting-overlay">
+          <span id="waiting-msg">⏳ Esperando tu turno...</span>
+        </div>
+        <textarea id="actionInput" rows="2"
+          placeholder="Describe lo que hace tu personaje..."></textarea>
+        <div class="action-buttons">
+          <button id="sendBtn" class="btn-primary">⚔ Enviar acción</button>
+        </div>
+        <div id="loadingIndicator" class="loading" style="display:none">
+          El Dungeon Master narra su respuesta...
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+
+<script>
+// ═══════════════════════════════════════════
+// ESTADO LOCAL
+// ═══════════════════════════════════════════
+let myPlayerId  = null;
+let myAvatar    = "🧙";
+let gameState   = { players: {}, turn_order: [], current_turn: 0 };
+const socket    = io();
+
+// ═══════════════════════════════════════════
+// PANTALLA DE INGRESO
+// ═══════════════════════════════════════════
+const inpName      = document.getElementById("inp-name");
+const inpClass     = document.getElementById("inp-class");
+const inpAlignment = document.getElementById("inp-alignment");
+const prevAvatar   = document.getElementById("prev-avatar");
+const prevName     = document.getElementById("prev-name");
+const prevSub      = document.getElementById("prev-sub");
+
+// Selección de avatar
+document.getElementById("avatar-grid").addEventListener("click", e => {
+  const btn = e.target.closest(".avatar-btn");
+  if (!btn) return;
+  document.querySelectorAll(".avatar-btn").forEach(b => b.classList.remove("selected"));
+  btn.classList.add("selected");
+  myAvatar = btn.dataset.av;
+  prevAvatar.textContent = myAvatar;
+});
+
+// Preview en tiempo real
+[inpName, inpClass, inpAlignment].forEach(el => {
+  el.addEventListener("input", updatePreview);
+  el.addEventListener("change", updatePreview);
+});
+
+function updatePreview() {
+  prevName.textContent = inpName.value || "Tu Nombre";
+  prevSub.textContent  = `${inpClass.value} · ${inpAlignment.value}`;
+}
+
+// Cargar jugadores esperando
+async function loadWaiting() {
+  const res  = await fetch("/api/state");
+  const data = await res.json();
+  const list = document.getElementById("waiting-list");
+  const wrap = document.getElementById("players-waiting");
+
+  if (Object.keys(data.players).length > 0) {
+    wrap.style.display = "block";
+    list.innerHTML = Object.values(data.players).map(p =>
+      `<span class="waiting-player" style="color:${p.color}">${p.avatar} ${p.name} (${p.cls})</span>`
+    ).join("");
+  }
+}
+loadWaiting();
+setInterval(loadWaiting, 5000);
+
+// Botón ingresar
+document.getElementById("btn-join").addEventListener("click", async () => {
+  const name = inpName.value.trim();
+  if (!name) { showJoinError("Ingresá un nombre de aventurero."); return; }
+
+  const res  = await fetch("/api/join", {
+    method:  "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name,
+      avatar:    myAvatar,
+      alignment: inpAlignment.value,
+      cls:       inpClass.value
+    })
+  });
+  const data = await res.json();
+
+  if (data.error) { showJoinError(data.error); return; }
+
+  myPlayerId = data.player_id;
+  gameState  = {
+    players:      data.players,
+    turn_order:   data.turn_order,
+    current_turn: data.current_turn
+  };
+
+  showScreen("game");
+  socket.emit("join_room", {});
+  renderGameState();
+});
+
+function showJoinError(msg) {
+  const el = document.getElementById("join-error");
+  el.textContent = msg;
+  el.style.display = "block";
+}
+
+// ═══════════════════════════════════════════
+// SALA DE JUEGO
+// ═══════════════════════════════════════════
+const chatDiv     = document.getElementById("chat");
+const actionInput = document.getElementById("actionInput");
+const sendBtn     = document.getElementById("sendBtn");
+const loadingDiv  = document.getElementById("loadingIndicator");
+const audioPlayer = document.getElementById("audioPlayer");
+
+// WebSocket: actualización del estado
+socket.on("game_update", data => {
+  if (data.players)      gameState.players      = data.players;
+  if (data.turn_order)   gameState.turn_order   = data.turn_order;
+  if (data.current_turn !== undefined) gameState.current_turn = data.current_turn;
+
+  if (data.chat_log) renderChatLog(data.chat_log);
+  renderGameState();
+});
+
+function renderGameState() {
+  renderPlayers();
+  renderTurnBanner();
+  renderInputState();
+}
+
+function renderPlayers() {
+  const list = document.getElementById("players-list");
+  if (!gameState.turn_order.length) {
+    list.innerHTML = '<p class="no-players">Nadie aún...</p>';
+    return;
+  }
+  list.innerHTML = gameState.turn_order.map((pid, idx) => {
+    const p       = gameState.players[pid];
+    if (!p) return "";
+    const isActive = idx === gameState.current_turn;
+    const isMe     = pid === myPlayerId;
+    return `
+      <div class="player-card ${isActive ? "active" : ""} ${isMe ? "me" : ""}">
+        <span class="player-avatar">${p.avatar}</span>
+        <div class="player-info">
+          <span class="player-name" style="color:${p.color}">${p.name}${isMe ? " (vos)" : ""}</span>
+          <span class="player-meta">${p.cls} · ${p.alignment}</span>
+        </div>
+        ${isActive ? '<span class="turn-indicator">◀ turno</span>' : ""}
+      </div>`;
+  }).join("");
+}
+
+function renderTurnBanner() {
+  const banner = document.getElementById("turn-banner");
+  const text   = document.getElementById("turn-text");
+
+  if (!gameState.turn_order.length) {
+    text.textContent = "Esperando aventureros...";
+    banner.className = "turn-banner neutral";
+    return;
+  }
+
+  const currentPid = gameState.turn_order[gameState.current_turn];
+  const p          = gameState.players[currentPid];
+  if (!p) return;
+
+  if (currentPid === myPlayerId) {
+    text.textContent = "⚔ ¡Es tu turno, aventurero!";
+    banner.className = "turn-banner my-turn";
+  } else {
+    text.textContent = `⏳ Turno de ${p.avatar} ${p.name}`;
+    banner.className = "turn-banner other-turn";
+  }
+}
+
+function renderInputState() {
+  if (!gameState.turn_order.length) return;
+  const currentPid = gameState.turn_order[gameState.current_turn];
+  const isMyTurn   = currentPid === myPlayerId;
+  const overlay    = document.getElementById("waiting-overlay");
+  const waitMsg    = document.getElementById("waiting-msg");
+
+  if (isMyTurn) {
+    overlay.style.display = "none";
+    actionInput.disabled  = false;
+    sendBtn.disabled      = false;
+    actionInput.focus();
+  } else {
+    const p = gameState.players[currentPid];
+    waitMsg.textContent = p
+      ? `⏳ Esperando a ${p.avatar} ${p.name}...`
+      : "⏳ Esperando turno...";
+    overlay.style.display = "flex";
+    actionInput.disabled  = true;
+    sendBtn.disabled      = true;
+  }
+}
+
+function renderChatLog(log) {
+  chatDiv.innerHTML = "";
+  log.forEach(msg => {
+    const div = document.createElement("div");
+    div.className = `message ${msg.type}`;
+
+    const safeText = (msg.text || "")
+      .replace(/[&<>]/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[m]))
+      .replace(/\n/g, "<br>");
+
+    div.innerHTML = `
+      <span class="msg-avatar">${msg.avatar}</span>
+      <div class="msg-body">
+        <span class="msg-sender" style="color:${msg.color}">${msg.sender}</span>
+        <span class="msg-text">${safeText}</span>
+      </div>`;
+    chatDiv.appendChild(div);
+  });
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+// Enviar acción
+async function sendAction() {
+  const action = actionInput.value.trim();
+  if (!action || !myPlayerId) return;
+
+  actionInput.value    = "";
+  actionInput.disabled = true;
+  sendBtn.disabled     = true;
+  loadingDiv.style.display = "block";
+
+  try {
+    const res  = await fetch("/api/action", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ player_id: myPlayerId, action })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    // Audio del GM
+    if (data.audio_base64) {
+      audioPlayer.src          = "data:audio/mpeg;base64," + data.audio_base64;
+      audioPlayer.style.display = "block";
+      audioPlayer.play().catch(() => {});
+    }
+  } catch (err) {
+    const div = document.createElement("div");
+    div.className = "message system";
+    div.innerHTML = `<span class="msg-avatar">⚠️</span><div class="msg-body"><span class="msg-text">${err.message}</span></div>`;
+    chatDiv.appendChild(div);
+  } finally {
+    loadingDiv.style.display = "none";
+    // El estado se actualiza por WebSocket
+  }
+}
+
+sendBtn.addEventListener("click", sendAction);
+actionInput.addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendAction(); }
+});
+
+// Abandonar partida
+document.getElementById("btn-leave").addEventListener("click", async () => {
+  if (!confirm("¿Abandonar la partida?")) return;
+  await fetch("/api/leave", {
+    method:  "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ player_id: myPlayerId })
+  });
+  myPlayerId = null;
+  showScreen("join");
+  loadWaiting();
+});
+
+// ═══════════════════════════════════════════
+// UTILIDADES
+// ═══════════════════════════════════════════
+function showScreen(name) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(`screen-${name}`).classList.add("active");
+}
+</script>
+</body>
+</html>
