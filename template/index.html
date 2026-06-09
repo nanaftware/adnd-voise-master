@@ -191,7 +191,93 @@ let cfgHumans   = 1;
 let pendingNpcs = [];
 let gameState   = { players:{}, turn_order:[], current_turn:0, configured:false };
 const socket    = io();
+  
+// Elementos de guardado/carga
+const saveGameBtn = document.getElementById('saveGameBtn');
+const loadGameBtn = document.getElementById('loadGameBtn');
+const saveFileSelect = document.getElementById('saveFileSelect');
 
+// Guardar partida
+saveGameBtn.addEventListener('click', async () => {
+    const playerName = prompt("Nombre del jugador:", "aventurero");
+    if (!playerName) return;
+    
+    const campaignName = prompt("Nombre de la campaña (opcional):", "Mi Aventura");
+    
+    const response = await fetch('/api/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            player_name: playerName,
+            campaign_name: campaignName || "default"
+        })
+    });
+    const data = await response.json();
+    
+    if (data.status === 'ok') {
+        addMessage(`✅ ${data.message}`, "system");
+        await loadSaveList(); // Actualizar lista de guardados
+    } else {
+        addMessage(`❌ Error al guardar: ${data.message}`, "system");
+    }
+});
+
+// Cargar lista de partidas guardadas
+async function loadSaveList() {
+    const response = await fetch('/api/list_saves');
+    const data = await response.json();
+    
+    if (data.status === 'ok' && data.saves.length > 0) {
+        saveFileSelect.style.display = 'block';
+        saveFileSelect.innerHTML = '<option value="">Seleccionar partida...</option>';
+        
+        data.saves.forEach(save => {
+            const option = document.createElement('option');
+            option.value = save.filename;
+            option.textContent = `${save.player_name} - ${save.campaign_name} (${save.timestamp})`;
+            saveFileSelect.appendChild(option);
+        });
+    } else {
+        saveFileSelect.style.display = 'none';
+    }
+}
+
+// Cargar partida seleccionada
+loadGameBtn.addEventListener('click', async () => {
+    if (saveFileSelect.style.display === 'none' || !saveFileSelect.value) {
+        addMessage("⚠️ No hay partidas guardadas. Guarda una primero.", "system");
+        await loadSaveList();
+        return;
+    }
+    
+    if (confirm("¿Cargar esta partida? Se perderá el progreso actual no guardado.")) {
+        const response = await fetch('/api/load', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ filename: saveFileSelect.value })
+        });
+        const data = await response.json();
+        
+        if (data.status === 'ok') {
+            // Limpiar chat actual
+            chatDiv.innerHTML = '';
+            addMessage(`🎭 Partida cargada: ${data.message}`, "gm");
+            
+            // Mostrar últimos mensajes (opcional)
+            if (data.history) {
+                data.history.forEach(msg => {
+                    const sender = msg.role === 'user' ? 'player' : 'gm';
+                    addMessage(msg.content, sender);
+                });
+            }
+        } else {
+            addMessage(`❌ Error al cargar: ${data.message}`, "system");
+        }
+    }
+});
+
+// Cargar lista al iniciar
+loadSaveList();
 // ── Utilidades ──────────────────────────────────────────────────
 function showScreen(name) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
