@@ -65,9 +65,9 @@ body {
   align-items: center;
   justify-content: center;
   padding: 24px 16px;
-  background-image: url('/static/hero.png');
+  background-image: url('/static/dados.png');
   background-size: cover;
-  background-position: center top;
+  background-position: center;
   background-repeat: no-repeat;
   position: relative;
 }
@@ -77,14 +77,32 @@ body {
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(14,11,8,0.55) 0%,
-    rgba(14,11,8,0.70) 50%,
-    rgba(14,11,8,0.88) 100%
+    rgba(14,11,8,0.60) 0%,
+    rgba(14,11,8,0.75) 50%,
+    rgba(14,11,8,0.90) 100%
   );
   pointer-events: none;
 }
 #screen-join .join-container { position: relative; z-index: 1; }
 #screen-join.active { display: flex; }
+
+/* Pantalla NPCs — misma imagen */
+#screen-npcs {
+  background-image: url('/static/dados.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+}
+#screen-npcs::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(14,11,8,0.72);
+  pointer-events: none;
+}
+#screen-npcs .join-container { position: relative; z-index: 1; }
+#screen-npcs.active { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px 16px; }
 
 .join-container {
   width: 100%;
@@ -310,7 +328,7 @@ select option { background: #1F160D; }
 }
 .sidebar-title {
   font-family: 'Cinzel', serif;
-  font-size: 1.0rem;
+  font-size: 0.72rem;
   color: var(--gold-mid);
   letter-spacing: 0.2em;
   text-transform: uppercase;
