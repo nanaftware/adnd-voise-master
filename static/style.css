@@ -310,7 +310,7 @@ select option { background: #1F160D; }
 }
 .sidebar-title {
   font-family: 'Cinzel', serif;
-  font-size: 0.72rem;
+  font-size: 1.0rem;
   color: var(--gold-mid);
   letter-spacing: 0.2em;
   text-transform: uppercase;
