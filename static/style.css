@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=IM+Fell+English:ital@0;1&family=Cinzel+Decorative:wght@400;700&display=swap');
 
 :root {
@@ -38,51 +37,53 @@ body {
 /* ═══════════════════════════════════════
    SCREENS
 ═══════════════════════════════════════ */
-.screen { display: none !important; }
-.screen.active { display: block !important; }
-/*-----------BOTONES DE SALVA Y COPIA-----*/
-.save-load-buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-    flex-wrap: wrap;
-}
+.screen { display: none; }
+.screen.active { display: block; }
 
-.btn-save, .btn-load {
-    background: #2c3e50;
-    color: white;
-    padding: 8px 15px;
-    font-size: 0.9rem;
-    flex: 1;
-}
-
-.btn-save:hover {
-    background: #27ae60;
-}
-
-.btn-load:hover {
-    background: #2980b9;
-}
-
-#saveFileSelect {
-    flex: 2;
-    padding: 8px;
-    border-radius: 20px;
-    background: #34495e;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
 /* ═══════════════════════════════════════
    PANTALLA DE INGRESO
 ═══════════════════════════════════════ */
+#screen-config {
+  background-image: url('/static/hero.png');
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  position: relative;
+}
+#screen-config::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(14,11,8,0.72);
+  pointer-events: none;
+}
+#screen-config .join-container { position: relative; z-index: 1; }
+#screen-config.active { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px 16px; }
 #screen-join {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px 16px;
+  background-image: url('/static/hero.png');
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  position: relative;
 }
+#screen-join::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(14,11,8,0.55) 0%,
+    rgba(14,11,8,0.70) 50%,
+    rgba(14,11,8,0.88) 100%
+  );
+  pointer-events: none;
+}
+#screen-join .join-container { position: relative; z-index: 1; }
 #screen-join.active { display: flex; }
 
 .join-container {
@@ -366,6 +367,23 @@ select option { background: #1F160D; }
   padding: 0.8rem;
   border-top: 1px solid var(--border-rune);
 }
+.btn-reset {
+  width: 100%;
+  padding: 8px;
+  background: transparent;
+  border: 1px solid var(--gold-dark);
+  color: var(--gold-mid);
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.2s;
+  margin-bottom: 6px;
+}
+.btn-reset:hover { background: rgba(106,79,26,0.2); color: var(--gold-bright); }
+
 .btn-leave {
   width: 100%;
   padding: 8px;
