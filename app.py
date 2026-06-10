@@ -18,7 +18,7 @@ MAX_HISTORY = 6
 # ── OpenRouter (NPCs jugadores) ────────────────────────────────
 OPENROUTER_KEY = os.environ.get("OPENROUTER_API_KEY")
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
-MODEL_NPC      = "meta-llama/llama-3.2-3b-instruct:free"
+MODEL_NPC      = "nvidia/nemotron-3.5-content-safety:free"
 
 # ── System prompt ──────────────────────────────────────────────
 SYSTEM_PROMPT = """Eres el Dungeon Master de Crónicas del Abismo, AD&D 3.5 fantasía oscura. Narrás en español con voz épica y atmosférica.
