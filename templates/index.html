@@ -138,6 +138,7 @@
       <div class="sidebar-header"><span class="sidebar-title">Aventureros</span></div>
       <div id="players-list"></div>
       <div class="sidebar-footer">
+        <button id="btn-reset" class="btn-reset">✦ Nueva partida</button>
         <button id="btn-leave" class="btn-leave">Abandonar</button>
       </div>
     </aside>
@@ -395,8 +396,12 @@ socket.on("game_update", data => {
   if (data.turn_order)                 gameState.turn_order   = data.turn_order;
   if (data.current_turn !== undefined) gameState.current_turn = data.current_turn;
   if (data.chat_log)                   renderChatLog(data.chat_log);
-  if (data.intro_audio || data.gm_audio) playAudio(data.intro_audio || data.gm_audio);
   renderGameState();
+});
+
+// Audio en evento separado para no saturar el WebSocket
+socket.on("gm_audio", data => {
+  if (data.audio) playAudio(data.audio);
 });
 
 function playAudio(b64) {
@@ -404,6 +409,10 @@ function playAudio(b64) {
   audioPlayer.src = "data:audio/mpeg;base64," + b64;
   audioPlayer.style.display = "block";
   audioPlayer.play().catch(()=>{});
+  audioPlayer.onended = () => {
+    audioPlayer.src = "";
+    audioPlayer.style.display = "none";
+  };
 }
 
 function renderGameState() {
@@ -526,6 +535,13 @@ async function sendAction() {
 sendBtn.addEventListener("click", sendAction);
 actionInput.addEventListener("keydown", e => {
   if (e.key==="Enter" && !e.shiftKey) { e.preventDefault(); sendAction(); }
+});
+
+document.getElementById("btn-reset").addEventListener("click", async () => {
+  if (!confirm("¿Iniciar una nueva partida? Se perderá todo el historial actual.")) return;
+  await fetch("/api/reset", { method:"POST" });
+  myPlayerId = null;
+  location.reload();
 });
 
 document.getElementById("btn-leave").addEventListener("click", async () => {
